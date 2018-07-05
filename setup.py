@@ -52,11 +52,14 @@ setup(
     install_requires=[
         'setuptools',
         'nti.asynchronous',
+        'nti.site',
+        'nti.traversal',
         'nti.xapi',
         'pyramid',
         'zope.component',
         'zope.i18nmessageid',
         'zope.interface',
+        'zope.location',
         'zope.security',
     ],
     extras_require={
