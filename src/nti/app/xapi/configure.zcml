@@ -9,6 +9,8 @@
 	<include package="zope.component" />
 	<include package="zope.security" />
 
+	<include package="zope.location" />
+
 	<include package="nti.asynchronous" />
 	<include package="nti.xapi" />
 
