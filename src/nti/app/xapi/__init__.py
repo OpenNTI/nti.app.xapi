@@ -10,3 +10,11 @@ from __future__ import absolute_import
 
 import zope.i18nmessageid
 MessageFactory = zope.i18nmessageid.MessageFactory(__name__)
+
+from zope import component
+
+from nti.app.xapi.interfaces import IXAPIJobQueueFactory
+
+
+def get_factory():
+    return component.getUtility(IXAPIJobQueueFactory)
