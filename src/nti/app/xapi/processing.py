@@ -81,6 +81,6 @@ def put_generic_job(queue_name, func, job_id=None, site_name=None,
                      func,
                      job_id=job_id,
                      site_name=site_name)
-    job.id = job_id
+    job.id = job_id or job.id 
     queue.put(job, use_transactions)
     return job
