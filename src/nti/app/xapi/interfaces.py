@@ -17,3 +17,14 @@ class IXAPIJobQueueFactory(interface.Interface):
     """
     A factory for spark job queues.
     """
+
+class IStatementRecorder(interface.Interface):
+    """
+    An object capable of recording xapi statements
+    """
+
+    def record_statements(stmts):
+        """
+        Record the provided xapi statements.  Accepts a list
+        of `nti.xapi.interfaces.IStatement` objects or a single IStatement object.
+        """
