@@ -14,11 +14,11 @@ from zope import component
 from zope import interface
 
 from nti.xapi.interfaces import ILRSClient
+from nti.xapi.interfaces import IStatement
 
 from nti.app.xapi.interfaces import IStatementRecorder
 
 logger = __import__('logging').getLogger(__name__)
-
 
 @interface.implementer(IStatementRecorder)
 class LRSStatementRecorder(object):
@@ -39,3 +39,21 @@ class LRSStatementRecorder(object):
         if isinstance(stmts, (list, tuple,)):
             recorder = client.save_statements
         recorder(stmts)
+
+@interface.implementer(IStatementRecorder)
+class InMemoryStartmentRecorder(object):
+
+    def __init__(self):
+        logger.warn('Recording statements in memory. Testing???')
+        self.statements = []
+
+    def record_statements(self, stmts):
+        if not isinstance(stmts, (list, tuple,)):
+            stmts = [stmts]
+
+        for stmt in stmts:
+            if not IStatement.providedBy(stmt):
+                raise TypeError('Expected IStatement by was given %s' % type(stmt))
+        self.statements.extend(stmts)
+        
+                

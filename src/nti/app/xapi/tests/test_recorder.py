@@ -11,7 +11,14 @@ import fudge
 
 import unittest
 
+from hamcrest import assert_that
+from hamcrest import has_property
+from hamcrest import has_length
+
 from nti.app.xapi.recorder import LRSStatementRecorder
+from nti.app.xapi.recorder import InMemoryStartmentRecorder
+
+from nti.xapi.statement import Statement
 
 
 class MockLRSClientStatementRecorder(LRSStatementRecorder):
@@ -27,7 +34,7 @@ class MockLRSClientStatementRecorder(LRSStatementRecorder):
 class TestLRSStatementRecorder(unittest.TestCase):
 
     def setUp(self):
-        self.stmt = object()
+        self.stmt = Statement()
 
     @fudge.patch('nti.xapi.client.LRSClient')
     def test_saves_single_stmt(self, mock_client):
@@ -44,3 +51,21 @@ class TestLRSStatementRecorder(unittest.TestCase):
         client.record_statements([self.stmt])
 
 
+class TestInMemoryStatementRecorder(TestLRSStatementRecorder):
+
+    def test_saves_single_stmt(self):
+        client = InMemoryStartmentRecorder()
+        client.record_statements(self.stmt)
+
+        assert_that(client, has_property('statements', has_length(1)))
+
+    def test_saves_multiple_stmt(self):
+        client = InMemoryStartmentRecorder()
+        client.record_statements([self.stmt, self.stmt])
+
+        assert_that(client, has_property('statements', has_length(2)))
+
+    def test_requires_stmt(self):
+        client = InMemoryStartmentRecorder()
+        with self.assertRaises(TypeError):
+            client.record_statements(object())
