@@ -2,7 +2,8 @@
 <configure	xmlns="http://namespaces.zope.org/zope"
 			xmlns:i18n="http://namespaces.zope.org/i18n"
 			xmlns:ext="http://nextthought.com/ntp/ext"
-			xmlns:zcml="http://namespaces.zope.org/zcml">
+			xmlns:zcml="http://namespaces.zope.org/zcml"
+			xmlns:runner="http://nextthought.com/ntp/xapirunner">
 
 	<include package="zope.component" file="meta.zcml" />
 	<include package="zope.security" file="meta.zcml" />
@@ -13,6 +14,8 @@
 
 	<include package="nti.asynchronous" />
 	<include package="nti.xapi" />
+
+	<include package="." file="meta.zcml" />
 
 	<adapter for="nti.dataserver.interfaces.IUser"
 		 factory=".adapters.user_as_agent"
@@ -32,5 +35,13 @@
 		 factory=".adapters.user_as_psuedo_anonymous_agent"
 		 provides="nti.xapi.interfaces.IAgent"
 		 name="anonymous"/>
+
+	<!-- Jobs -->
+	<configure zcml:condition="have testmode">
+		<runner:registerImmediateProcessingQueue />
+	</configure>
+	<configure zcml:condition="not-have testmode">
+		<runner:registerProcessingQueue />
+	</configure>
 
 </configure>
