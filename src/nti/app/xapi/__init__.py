@@ -15,6 +15,14 @@ from zope import component
 
 from nti.app.xapi.interfaces import IXAPIJobQueueFactory
 
+#: Recorder job NTIID Type
+RECORDER_JOB = u'RecorderJob'
+
+#: Recorder jobs redis queue name
+RECORDER_JOBS_QUEUE = '++etc++recorder++queue++jobs'
+
+QUEUE_NAMES = (RECORDER_JOBS_QUEUE,)
+
 
 def get_factory():
     return component.getUtility(IXAPIJobQueueFactory)
