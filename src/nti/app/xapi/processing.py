@@ -8,22 +8,34 @@ from __future__ import division
 from __future__ import print_function
 from __future__ import absolute_import
 
+import time
+
 from zope import component
 
 from zope.component.hooks import getSite
 from zope.component.hooks import site as current_site
 
-from nti.app.xapi import get_factory
+from nti.app.xapi import RECORDER_JOB
+ 
+from nti.app.xapi import get_factory 
 
 from nti.app.xapi.common import get_site
+from nti.app.xapi.common import get_creator
 
 from nti.asynchronous import create_job
 
 from nti.coremetadata.interfaces import IDataserver
 
+from nti.coremetadata.utils import current_principal
+
+from nti.ntiids.ntiids import make_ntiid
+from nti.ntiids.ntiids import make_specific_safe
+
 from nti.site.site import get_site_for_site_names
 
 from nti.site.transient import TrivialSite
+
+from nti.zodb.containers import time_to_64bit_int
 
 logger = __import__('logging').getLogger(__name__)
 
@@ -73,14 +85,27 @@ def get_job_queue(name):
     return factory.get_queue(name)
 
 
-def put_generic_job(queue_name, func, job_id=None, site_name=None,
-                    use_transactions=True):
-    site_name = get_site(site_name)
+def generate_job_id():
+    creator = get_creator(current_principal())
+    current_time = time_to_64bit_int(time.time())
+    specific = u"%s_%s" % (creator, current_time)
+    specific = make_specific_safe(specific)
+    return make_ntiid(nttype=RECORDER_JOB, specific=specific)
+
+
+def put_generic_job(queue_name, func, args=(), kws=None, 
+                    job_id=None, site_name=None):
+    job_id = job_id or generate_job_id()
     queue = get_job_queue(queue_name)
+    # validate
+    args = args or ()
+    # always provided site name
+    kws = dict(kws or {})
+    kws['site_name'] = get_site(site_name)
     job = create_job(execute_generic_job,
                      func,
-                     job_id=job_id,
-                     site_name=site_name)
-    job.id = job_id or job.id 
-    queue.put(job, use_transactions)
+                     *args,
+                     **kws)
+    job.id = job_id
+    queue.put(job)
     return job
