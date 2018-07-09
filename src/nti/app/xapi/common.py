@@ -17,6 +17,8 @@ from zope import component
 
 from zope.component.hooks import getSite
 
+from nti.common.iterables import is_nonstr_iterable
+
 from nti.coremetadata.interfaces import IRedisClient
 
 from nti.site.interfaces import IHostPolicyFolder
@@ -61,3 +63,7 @@ def unpickle(data):
     bio.seek(0)
     result = pickle.load(bio)
     return result
+
+
+def to_nonstr_iterable(d):
+    return (d,) if not is_nonstr_iterable(d) else d
