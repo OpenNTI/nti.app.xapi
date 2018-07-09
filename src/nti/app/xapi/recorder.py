@@ -63,7 +63,7 @@ class InMemoryStartmentRecorder(object):
         for stmt in to_nonstr_iterable(stmts):
             assert IStatement.providedBy(stmt), \
                    "Invalid statement %s" % type(stmt)
-        self.statements.extend(stmts)
+            self.statements.append(stmt)
 
 
 @interface.implementer(IStatementRecorder)
