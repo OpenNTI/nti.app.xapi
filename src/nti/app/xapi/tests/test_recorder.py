@@ -5,7 +5,7 @@ from __future__ import division
 from __future__ import print_function
 from __future__ import absolute_import
 
-# pylint: disable=protected-access,too-many-public-methods
+# pylint: disable=protected-access,too-many-public-methods,arguments-differ 
 
 import fudge
 
@@ -24,7 +24,6 @@ from nti.xapi.statement import Statement
 class MockLRSClientStatementRecorder(LRSStatementRecorder):
 
     def __init__(self, mock_client):
-        super(LRSStatementRecorder, self).__init__()
         self.mock_client = mock_client
 
     def _lrs_client(self):
@@ -56,16 +55,14 @@ class TestInMemoryStatementRecorder(TestLRSStatementRecorder):
     def test_saves_single_stmt(self):
         client = InMemoryStartmentRecorder()
         client.record_statements(self.stmt)
-
         assert_that(client, has_property('statements', has_length(1)))
 
     def test_saves_multiple_stmt(self):
         client = InMemoryStartmentRecorder()
         client.record_statements([self.stmt, self.stmt])
-
         assert_that(client, has_property('statements', has_length(2)))
 
     def test_requires_stmt(self):
         client = InMemoryStartmentRecorder()
-        with self.assertRaises(TypeError):
+        with self.assertRaises(AssertionError):
             client.record_statements(object())
