@@ -14,4 +14,23 @@
 	<include package="nti.asynchronous" />
 	<include package="nti.xapi" />
 
+	<adapter for="nti.dataserver.interfaces.IUser"
+		 factory=".adapters.user_as_agent"
+		 provides="nti.xapi.interfaces.IAgent"/>
+
+	<adapter for="nti.dataserver.interfaces.IUser"
+		 factory=".adapters.user_as_username_agent"
+		 provides="nti.xapi.interfaces.IAgent"
+		 name="default"/>
+	
+	<adapter for="nti.dataserver.interfaces.IUser"
+		 factory=".adapters.user_as_username_agent"
+		 provides="nti.xapi.interfaces.IAgent"
+		 name="username"/>
+
+	<adapter for="nti.dataserver.interfaces.IUser"
+		 factory=".adapters.user_as_psuedo_anonymous_agent"
+		 provides="nti.xapi.interfaces.IAgent"
+		 name="anonymous"/>
+
 </configure>

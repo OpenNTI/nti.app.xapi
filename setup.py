@@ -52,6 +52,7 @@ setup(
     install_requires=[
         'setuptools',
         'nti.asynchronous',
+        'nti.dataserver',
         'nti.site',
         'nti.traversal',
         'nti.xapi',
