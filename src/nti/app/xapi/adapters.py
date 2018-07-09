@@ -15,7 +15,7 @@ from zope import interface
 
 from nti.dataserver.interfaces import IUser
 
-from nti.externalization.oids import toExternalOID
+from nti.ntiids.oids import to_external_ntiid_oid
 
 from nti.xapi.entities import Agent
 from nti.xapi.entities import AgentAccount
@@ -25,7 +25,7 @@ from nti.xapi.interfaces import IAgent
 logger = __import__('logging').getLogger(__name__)
 
 
-NT_ACCOUNT_HOMEPAGE_BASE = 'http://nextthought.com/'
+NT_ACCOUNT_HOMEPAGE_BASE = 'http://nextthought.com'
 
 
 def _account_homepage(account_type, base=NT_ACCOUNT_HOMEPAGE_BASE):
@@ -35,7 +35,7 @@ def _account_homepage(account_type, base=NT_ACCOUNT_HOMEPAGE_BASE):
 @interface.implementer(IAgent)
 @component.adapter(IUser)
 def user_as_agent(user):
-    return IAgent(user, name="default")
+    return component.getAdapter(user, IAgent, name='username')
 
 
 @interface.implementer(IAgent)
@@ -49,6 +49,6 @@ def user_as_username_agent(user):
 @interface.implementer(IAgent)
 @component.adapter(IUser)
 def user_as_psuedo_anonymous_agent(user):
-    oid = toExternalOID(user)
+    oid = to_external_ntiid_oid(user, mask_creator=True)
     account = AgentAccount(homePage=_account_homepage('external_oid'), name=oid)
     return Agent(account=account)
