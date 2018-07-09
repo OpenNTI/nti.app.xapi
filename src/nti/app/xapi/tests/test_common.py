@@ -19,7 +19,6 @@ from nti.app.xapi.common import unpickle
 from nti.app.xapi.common import get_creator
 from nti.app.xapi.common import pickle_dump
 from nti.app.xapi.common import redis_client
-from nti.app.xapi.common import is_nonstr_iterable
 
 
 class TestCommon(unittest.TestCase):
@@ -37,16 +36,3 @@ class TestCommon(unittest.TestCase):
         d = pickle_dump('foo')
         assert_that(d, is_not(none()))
         assert_that(unpickle(d), is_('foo'))
-
-    def test_is_nonstr_iterable(self):
-        assert_that(is_nonstr_iterable('d'), is_(False))
-        assert_that(is_nonstr_iterable(object()), is_(False))
-        
-        assert_that(is_nonstr_iterable(set()), is_(True))
-        assert_that(is_nonstr_iterable(list()), is_(True))
-        assert_that(is_nonstr_iterable(tuple()), is_(True))
-
-        def sample():
-            yield 5
-            
-        assert_that(is_nonstr_iterable(sample()), is_(True))

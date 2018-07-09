@@ -13,9 +13,9 @@ from __future__ import absolute_import
 from zope import component
 from zope import interface
 
-from nti.app.xapi.common import is_nonstr_iterable
-
 from nti.app.xapi.interfaces import IStatementRecorder
+
+from nti.common.iterables import is_nonstr_iterable
 
 from nti.xapi.interfaces import ILRSClient
 from nti.xapi.interfaces import IStatement
