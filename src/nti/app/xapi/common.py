@@ -10,6 +10,9 @@ from __future__ import absolute_import
 
 import zlib
 from io import BytesIO
+from collections import Iterable
+
+from six import string_types
 from six.moves import cPickle as pickle
 
 from zope import component
@@ -60,3 +63,7 @@ def unpickle(data):
     bio.seek(0)
     result = pickle.load(bio)
     return result
+
+
+def is_nonstr_iterable(s):
+    return isinstance(s, Iterable) and not isinstance(s, string_types)
