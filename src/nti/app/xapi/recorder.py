@@ -13,7 +13,15 @@ from __future__ import absolute_import
 from zope import component
 from zope import interface
 
+from nti.app.xapi import RECORDER_JOBS_QUEUE
+
+from nti.app.xapi.common import to_nonstr_iterable
+
 from nti.app.xapi.interfaces import IStatementRecorder
+
+from nti.app.xapi.processing import put_generic_job
+
+from nti.app.xapi.runner import process_statement
 
 from nti.common.iterables import is_nonstr_iterable
 
@@ -52,10 +60,20 @@ class InMemoryStartmentRecorder(object):
         self.statements = []
 
     def record_statements(self, stmts):
-        if not is_nonstr_iterable(stmts):
-            stmts = [stmts]
-
-        for stmt in stmts:
+        for stmt in to_nonstr_iterable(stmts):
             assert IStatement.providedBy(stmt), \
                    "Invalid statement %s" % type(stmt)
-        self.statements.extend(stmts)
+            self.statements.append(stmt)
+
+
+@interface.implementer(IStatementRecorder)
+class SingleRedisStartmentRecorder(object):
+
+    def __init__(self):
+        logger.warn('Recording statements in redis')
+
+    def record_statements(self, stmts):
+        for statement in to_nonstr_iterable(stmts):
+            put_generic_job(RECORDER_JOBS_QUEUE, 
+                            process_statement
+                            (statement,))

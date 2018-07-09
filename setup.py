@@ -53,6 +53,7 @@ setup(
         'setuptools',
         'nti.asynchronous',
         'nti.common',
+        'nti.coremetadata',
         'nti.dataserver',
         'nti.site',
         'nti.traversal',
