@@ -13,12 +13,15 @@ from __future__ import absolute_import
 from zope import component
 from zope import interface
 
-from nti.xapi.interfaces import ILRSClient
-from nti.xapi.interfaces import IStatement
+from nti.app.xapi.common import is_nonstr_iterable
 
 from nti.app.xapi.interfaces import IStatementRecorder
 
+from nti.xapi.interfaces import ILRSClient
+from nti.xapi.interfaces import IStatement
+
 logger = __import__('logging').getLogger(__name__)
+
 
 @interface.implementer(IStatementRecorder)
 class LRSStatementRecorder(object):
@@ -33,12 +36,13 @@ class LRSStatementRecorder(object):
     def record_statements(self, stmts):
         client = self._lrs_client()
         if client is None:
-            logger.warning('No LRSClient Found. Dropping statements')
+            logger.warning('No LRSClient Found. Dropping statement(s)')
+        else:
+            recorder = client.save_statement
+            if is_nonstr_iterable(stmts):
+                recorder = client.save_statements
+            recorder(stmts)
 
-        recorder = client.save_statement
-        if isinstance(stmts, (list, tuple,)):
-            recorder = client.save_statements
-        recorder(stmts)
 
 @interface.implementer(IStatementRecorder)
 class InMemoryStartmentRecorder(object):
@@ -48,12 +52,10 @@ class InMemoryStartmentRecorder(object):
         self.statements = []
 
     def record_statements(self, stmts):
-        if not isinstance(stmts, (list, tuple,)):
+        if not is_nonstr_iterable(stmts):
             stmts = [stmts]
 
         for stmt in stmts:
-            if not IStatement.providedBy(stmt):
-                raise TypeError('Expected IStatement by was given %s' % type(stmt))
+            assert IStatement.providedBy(stmt), \
+                   "Invalid statement %s" % type(stmt)
         self.statements.extend(stmts)
-        
-                
