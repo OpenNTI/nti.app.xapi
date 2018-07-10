@@ -19,7 +19,7 @@ import fudge
 from nti.app.xapi.scripts.nti_xapi_recorder import Constructor
 
 
-class TestRunner(unittest.TestCase):
+class TestRecorder(unittest.TestCase):
 
     @fudge.patch('nti.app.xapi.scripts.nti_xapi_recorder.create_context')
     def test_create_context(self, mock_cc):
