@@ -56,7 +56,7 @@ class LRSStatementRecorder(object):
 class InMemoryStartmentRecorder(object):
 
     def __init__(self):
-        logger.warn('Recording statements in memory. Testing???')
+        logger.warning('Recording statements in memory. Testing???')
         self.statements = []
 
     def record_statements(self, stmts):
@@ -70,7 +70,7 @@ class InMemoryStartmentRecorder(object):
 class SingleRedisStartmentRecorder(object):
 
     def __init__(self):
-        logger.warn('Recording statements in redis')
+        logger.warning('Recording statements in redis')
 
     def record_statements(self, stmts):
         for statement in to_nonstr_iterable(stmts):
