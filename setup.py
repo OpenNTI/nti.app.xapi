@@ -4,7 +4,7 @@ from setuptools import find_packages
 
 entry_points = {
     'console_scripts': [
-        "nti_xapi_runner = nti.app.xapi.scripts.nti_xapi_runner:main",
+        "nti_xapi_recorder = nti.app.xapi.scripts.nti_xapi_recorder:main",
     ],
 }
 
@@ -34,6 +34,7 @@ setup(
     license='Apache',
     keywords='xAPI',
     classifiers=[
+        'Framework :: Zope3',
         'Intended Audience :: Developers',
         'Natural Language :: English',
         'Operating System :: OS Independent',

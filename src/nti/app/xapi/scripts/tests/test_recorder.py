@@ -16,12 +16,12 @@ import unittest
 
 import fudge
 
-from nti.app.xapi.scripts.nti_xapi_runner import Constructor
+from nti.app.xapi.scripts.nti_xapi_recorder import Constructor
 
 
 class TestRunner(unittest.TestCase):
 
-    @fudge.patch('nti.app.xapi.scripts.nti_xapi_runner.create_context')
+    @fudge.patch('nti.app.xapi.scripts.nti_xapi_recorder.create_context')
     def test_create_context(self, mock_cc):
         mock_cc.is_callable().returns_fake()
         c = Constructor()
@@ -31,7 +31,7 @@ class TestRunner(unittest.TestCase):
         c = Constructor()
         assert_that(c.conf_packages(), has_length(3))
 
-    @fudge.patch('nti.app.xapi.scripts.nti_xapi_runner.Processor.process_args')
+    @fudge.patch('nti.app.xapi.scripts.nti_xapi_recorder.Processor.process_args')
     def test_process_args(self, mock_pa):
         mock_pa.is_callable().returns_fake()
         class args(object):
