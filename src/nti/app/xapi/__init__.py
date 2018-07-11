@@ -24,6 +24,8 @@ RECORDER_JOBS_QUEUE = '++etc++recorder++queue++jobs'
 
 QUEUE_NAMES = (RECORDER_JOBS_QUEUE,)
 
+logger = __import__('logging').getLogger(__name__)
+
 
 def get_factory():
     return component.getUtility(IXAPIJobQueueFactory)
@@ -35,6 +37,5 @@ def record_statements(stmts):
     IStatementRecorder if it is available
     """
     recorder = component.queryUtility(IStatementRecorder)
-    if recorder is None:
-        return
-    recorder.record_statements(stmts)
+    if recorder is not None:
+        return recorder.record_statements(stmts)
