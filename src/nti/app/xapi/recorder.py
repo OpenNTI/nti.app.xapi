@@ -73,7 +73,11 @@ class SingleRedisStartmentRecorder(object):
         logger.warning('Recording statements in redis')
 
     def record_statements(self, stmts):
+        result = []
         for statement in to_nonstr_iterable(stmts):
-            put_generic_job(RECORDER_JOBS_QUEUE, 
-                            process_statement
-                            (statement,))
+            result.append(
+                put_generic_job(RECORDER_JOBS_QUEUE, 
+                                process_statement
+                                (statement,))
+            )
+        return result
