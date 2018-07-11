@@ -70,7 +70,7 @@ class InMemoryStartmentRecorder(object):
 class SingleRedisStartmentRecorder(object):
 
     def __init__(self):
-        logger.warning('Recording statements in redis')
+        logger.info('Recording statements in redis')
 
     def record_statements(self, stmts):
         result = []
