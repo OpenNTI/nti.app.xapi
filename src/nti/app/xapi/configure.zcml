@@ -36,6 +36,13 @@
 		 provides="nti.xapi.interfaces.IAgent"
 		 name="anonymous"/>
 
+	<adapter for="pyramid.interfaces.IRequest"
+		 factory=".recorder.statement_recorder_for_request"
+		 provides=".interfaces.IStatementRecorder" />
+
+	<utility component=".recorder.recorder_factory"
+		 provides=".interfaces.IStatementRecorderFactory" />
+
 	<!-- Jobs -->
 	<configure zcml:condition="have testmode">
 		<runner:registerImmediateProcessingQueue />

@@ -18,6 +18,17 @@ class IXAPIJobQueueFactory(interface.Interface):
     A factory for spark job queues.
     """
 
+class IStatementRecorderFactory(interface.Interface):
+    """
+    A callable factory that produces IStatementRecorder implementations
+    """
+
+    def __call__():
+        """
+        Returns an implementation of IStatementRecorder
+        """
+
+
 class IStatementRecorder(interface.Interface):
     """
     An object capable of recording xapi statements

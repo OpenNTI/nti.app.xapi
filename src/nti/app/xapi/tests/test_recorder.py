@@ -15,6 +15,7 @@ from hamcrest import assert_that
 from hamcrest import has_property
 from hamcrest import has_length
 
+from nti.app.xapi.recorder import BufferingStatementRecorder
 from nti.app.xapi.recorder import LRSStatementRecorder
 from nti.app.xapi.recorder import InMemoryStatementRecorder
 
@@ -66,3 +67,27 @@ class TestInMemoryStatementRecorder(TestLRSStatementRecorder):
         client = InMemoryStatementRecorder()
         with self.assertRaises(AssertionError):
             client.record_statements(object())
+
+
+class TestBufferedRecorder(TestLRSStatementRecorder):
+
+    def setUp(self):
+        super(TestBufferedRecorder, self).setUp()
+        self.backing = InMemoryStatementRecorder()
+        self.recorder = BufferingStatementRecorder(self.backing)
+
+    def test_saves_single_stmt(self):
+        self.recorder.record_statements(self.stmt)
+        assert_that(self.backing, has_property('statements', has_length(0)))
+        self.recorder.flush()
+        assert_that(self.backing, has_property('statements', has_length(1)))
+
+    def test_saves_multiple_stmt(self):
+        self.recorder.record_statements([self.stmt, self.stmt])
+        assert_that(self.backing, has_property('statements', has_length(0)))
+        self.recorder.flush()
+        assert_that(self.backing, has_property('statements', has_length(2)))
+
+    def test_requires_stmt(self):
+        with self.assertRaises(AssertionError):
+            self.recorder.record_statements(object())
