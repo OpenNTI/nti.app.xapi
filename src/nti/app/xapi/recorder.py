@@ -53,7 +53,7 @@ class LRSStatementRecorder(object):
 
 
 @interface.implementer(IStatementRecorder)
-class InMemoryStartmentRecorder(object):
+class InMemoryStatementRecorder(object):
 
     def __init__(self):
         logger.warning('Recording statements in memory. Testing???')
@@ -67,7 +67,7 @@ class InMemoryStartmentRecorder(object):
 
 
 @interface.implementer(IStatementRecorder)
-class SingleRedisStartmentRecorder(object):
+class SingleRedisStatementRecorder(object):
 
     def __init__(self):
         logger.info('Recording statements in redis')
