@@ -15,8 +15,13 @@ from pyramid.threadlocal import get_current_request
 
 from zope import component
 
+from nti.app.xapi.adapters import user_as_username_agent
+
 from nti.app.xapi.interfaces import IStatementRecorder
 from nti.app.xapi.interfaces import IXAPIJobQueueFactory
+
+from nti.coremetadata.interfaces import SYSTEM_USER_ID
+from nti.coremetadata.interfaces import SYSTEM_USER_NAME
 
 #: Recorder job NTIID Type
 RECORDER_JOB = u'RecorderJob'
@@ -43,3 +48,9 @@ def record_statements(stmts, request=None):
     recorder = IStatementRecorder(request, None)
     if recorder is not None:
         return recorder.record_statements(stmts)
+
+
+def system_actor():
+    agent = user_as_username_agent(SYSTEM_USER_ID)
+    agent.name = SYSTEM_USER_NAME
+    return agent
