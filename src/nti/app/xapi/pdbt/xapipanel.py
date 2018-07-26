@@ -8,11 +8,11 @@ from __future__ import division
 from __future__ import print_function
 from __future__ import absolute_import
 
-import json
-
 from pyramid_debugtoolbar.panels import DebugPanel
 
 from pyramid.threadlocal import get_current_request
+
+import simplejson as json
 
 from zope import component
 
@@ -24,16 +24,21 @@ from nti.externalization.externalization import to_external_object
 
 from nti.xapi.interfaces import IStatement
 
+logger = __import__('logging').getLogger(__name__)
+
+
 @component.adapter(IStatement, IStatementRecordedEvent)
-def _on_statement_recorded(stmt, event):
+def _on_statement_recorded(stmt, unused_event):
     request = get_current_request()
     if hasattr(request, '_nti_pdbt_xapi_statements'):
+        # pylint: disable=protected-access
         request._nti_pdbt_xapi_statements.append(stmt)
 
 
 gsm = getGlobalSiteManager()
 gsm.registerHandler(_on_statement_recorded)
 del gsm
+
 
 class XAPIDebugPanel(DebugPanel):
     """
@@ -44,6 +49,7 @@ class XAPIDebugPanel(DebugPanel):
     template = 'nti.app.xapi:pdbt/templates/xapipanel.dbtmako'
 
     def __init__(self, request):
+        DebugPanel.__init__(self, request)
         self.statements = request._nti_pdbt_xapi_statements = []
 
     @property
@@ -63,13 +69,13 @@ class XAPIDebugPanel(DebugPanel):
         if self.statements:
             return "%d" % (len(self.statements))
 
-    def process_response(self, response):
+    def process_response(self, unused_response):
         stmts = sorted(self.statements, key=lambda stmt: stmt.timestamp)
         self.data = {
             'statements': stmts,
             'source': [json.dumps(to_external_object(x), sort_keys=True) for x in stmts]
         }
-        
+
 
 def includeme(config):
     config.add_debugtoolbar_panel(XAPIDebugPanel)

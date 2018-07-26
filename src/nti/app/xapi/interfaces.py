@@ -18,10 +18,12 @@ from nti.schema.field import Object
 
 from nti.xapi.interfaces import IStatement
 
+
 class IXAPIJobQueueFactory(interface.Interface):
     """
     A factory for spark job queues.
     """
+
 
 class IStatementRecorderFactory(interface.Interface):
     """
@@ -32,6 +34,7 @@ class IStatementRecorderFactory(interface.Interface):
         """
         Returns an implementation of IStatementRecorder
         """
+
 
 class IStatementRecorder(interface.Interface):
     """
