@@ -47,6 +47,7 @@ def record_statements(stmts, request=None):
         request = get_current_request()
     recorder = IStatementRecorder(request, None)
     if recorder is not None:
+        # pylint: disable=too-many-function-args
         return recorder.record_statements(stmts)
 
 
