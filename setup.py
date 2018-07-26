@@ -61,6 +61,7 @@ setup(
         'nti.traversal',
         'nti.xapi',
         'pyramid',
+        'pyramid-debugtoolbar',
         'zope.component',
         'zope.i18nmessageid',
         'zope.interface',
