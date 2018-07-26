@@ -8,6 +8,8 @@ from __future__ import division
 from __future__ import print_function
 from __future__ import absolute_import
 
+import json
+
 from pyramid_debugtoolbar.panels import DebugPanel
 
 from pyramid.threadlocal import get_current_request
@@ -17,6 +19,8 @@ from zope import component
 from zope.component import getGlobalSiteManager
 
 from nti.app.xapi.interfaces import IStatementRecordedEvent
+
+from nti.externalization.externalization import to_external_object
 
 from nti.xapi.interfaces import IStatement
 
@@ -61,7 +65,10 @@ class XAPIDebugPanel(DebugPanel):
 
     def process_response(self, response):
         stmts = sorted(self.statements, key=lambda stmt: stmt.timestamp)
-        self.data = {'statements': stmts}
+        self.data = {
+            'statements': stmts,
+            'source': [json.dumps(to_external_object(x), sort_keys=True) for x in stmts]
+        }
         
 
 def includeme(config):
