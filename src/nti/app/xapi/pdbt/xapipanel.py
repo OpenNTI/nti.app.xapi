@@ -41,7 +41,7 @@ class XAPIDebugPanel(DebugPanel):
     during the request
     """
     name = 'xAPI'
-    template = 'nti.app.xapi:pdbt/templates/sample.dbtmako'
+    template = 'nti.app.xapi:pdbt/templates/xapipanel.dbtmako'
 
     def __init__(self, request):
         self.statements = request._nti_pdbt_xapi_statements = []
