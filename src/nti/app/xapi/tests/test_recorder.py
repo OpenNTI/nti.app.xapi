@@ -30,6 +30,10 @@ class MockLRSClientStatementRecorder(LRSStatementRecorder):
     def _lrs_client(self):
         return self.mock_client
 
+    @property
+    def client(self):
+        return self._lrs_client()
+
     
 class TestLRSStatementRecorder(unittest.TestCase):
 
