@@ -24,6 +24,8 @@ from nti.externalization.externalization import to_external_object
 
 from nti.xapi.interfaces import IStatement
 
+logger = __import__('logging').getLogger(__name__)
+
 
 @component.adapter(IStatement, IStatementRecordedEvent)
 def _on_statement_recorded(stmt, unused_event):
