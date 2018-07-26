@@ -21,10 +21,15 @@ import transaction
 from zope import component
 from zope import interface
 
+from zope.event import notify
+
+from zope.interface.interfaces import ObjectEvent
+
 from nti.app.xapi import RECORDER_JOBS_QUEUE
 
 from nti.app.xapi.common import to_nonstr_iterable
 
+from nti.app.xapi.interfaces import IStatementRecordedEvent
 from nti.app.xapi.interfaces import IStatementRecorder
 from nti.app.xapi.interfaces import IStatementRecorderFactory
 
@@ -42,13 +47,43 @@ from nti.xapi.interfaces import IStatement
 logger = __import__('logging').getLogger(__name__)
 
 
-def _on_statement_recorded(stmt):
-    if stmt.timestamp is None:
-        stmt.timestamp = datetime.utcnow()
+@interface.implementer(IStatementRecordedEvent)
+class StatementRecordedEvent(ObjectEvent):
+
+    @property
+    def statement(self):
+        return self.object
+
+
+class AbstractStatementRecorder(object):
+    """
+    A base for StatementRecorder implementations.
+    """
+
+    def notify_statements_recorded(self, stmts):
+        for stmt in stmts:
+            notify(StatementRecordedEvent(stmt))
+
+    def _do_record_statements(self, stmts):
+        """
+        Override to actually record or persist the statement
+        """
+
+    def record_statements(self, stmts):
+        stmts = to_nonstr_iterable(stmts)
+        for stmt in stmts:
+            assert IStatement.providedBy(stmt), \
+                   "Invalid statement %s" % type(stmt)
+            
+            if stmt.timestamp is None:
+                stmt.timestamp = datetime.utcnow()
+
+        self._do_record_statements(stmts)
+        self.notify_statements_recorded(stmts)
 
 
 @interface.implementer(IStatementRecorder)
-class LRSStatementRecorder(object):
+class LRSStatementRecorder(AbstractStatementRecorder):
     """
     A statement recorder that looks up an ILRSClient and writes
     statements to it.
@@ -56,35 +91,30 @@ class LRSStatementRecorder(object):
 
     def __init__(self):
         self.client = component.queryUtility(ILRSClient)
-        
-    def record_statements(self, stmts):
-        client = self.client
-        if client is None:
-            logger.warning('No LRSClient Found. Dropping statement(s)')
-        else:
-            recorder = client.save_statement
-            if is_nonstr_iterable(stmts):
-                recorder = client.save_statements
-            
-            for stmt in stmts:
-                assert IStatement.providedBy(stmt), \
-                   "Invalid statement %s" % type(stmt)
-                _on_statement_recorded(stmt)
-            logger.info('Persisting %i statements to lrs', len(stmts))
-            recorder(stmts)
 
+    def _do_record_statements(self, stmts):
+        recorder = self.client.save_statement
+        if is_nonstr_iterable(stmts):
+            recorder = self.client.save_statements
+        logger.info('Persisting %i statements to lrs', len(stmts))
+        recorder(stmts)
+
+
+    def record_statements(self, stmts):
+        if self.client is None:
+            logger.warning('No LRSClient Found. Dropping statement(s)')
+            return
+        super(LRSStatementRecorder, self).record_statements(stmts)
+   
 
 @interface.implementer(IStatementRecorder)
-class InMemoryStatementRecorder(object):
+class InMemoryStatementRecorder(AbstractStatementRecorder):
 
     def __init__(self):
         self.statements = []
 
-    def record_statements(self, stmts):
+    def _do_record_statements(self, stmts):
         for stmt in to_nonstr_iterable(stmts):
-            assert IStatement.providedBy(stmt), \
-                   "Invalid statement %s" % type(stmt)
-            _on_statement_recorded(stmt)
             self.statements.append(stmt)
 
 
@@ -93,6 +123,7 @@ class BufferingStatementRecorder(InMemoryStatementRecorder):
 
     def __init__(self, flush_to_recorder):
         super(BufferingStatementRecorder, self).__init__()
+        flush_to_recorder.notify_statements_recorded = lambda x: None
         self.flush_to_recorder = flush_to_recorder
 
     def flush(self):
@@ -106,10 +137,9 @@ class SingleRedisStatementRecorder(object):
     def __init__(self):
         logger.info('Recording statements in redis')
 
-    def record_statements(self, stmts):
+    def _do_record_statements(self, stmts):
         result = []
         for statement in to_nonstr_iterable(stmts):
-            _on_statement_recorded(statement)
             result.append(
                 put_generic_job(RECORDER_JOBS_QUEUE, 
                                 process_statement

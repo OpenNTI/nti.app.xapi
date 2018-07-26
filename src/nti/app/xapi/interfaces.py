@@ -12,6 +12,11 @@ from __future__ import absolute_import
 
 from zope import interface
 
+from zope.interface.interfaces import IObjectEvent
+
+from nti.schema.field import Object
+
+from nti.xapi.interfaces import IStatement
 
 class IXAPIJobQueueFactory(interface.Interface):
     """
@@ -28,7 +33,6 @@ class IStatementRecorderFactory(interface.Interface):
         Returns an implementation of IStatementRecorder
         """
 
-
 class IStatementRecorder(interface.Interface):
     """
     An object capable of recording xapi statements
@@ -39,3 +43,13 @@ class IStatementRecorder(interface.Interface):
         Record the provided xapi statements.  Accepts a list
         of `nti.xapi.interfaces.IStatement` objects or a single IStatement object.
         """
+
+
+class IStatementRecordedEvent(IObjectEvent):
+    """
+    An object event fired when a statement is recorded
+    """
+
+    statement = Object(IStatement,
+                       title=u"The statement that was recorded",
+                       required=True)
