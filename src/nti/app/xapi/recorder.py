@@ -14,8 +14,6 @@ from datetime import datetime
 
 from pyramid.interfaces import IRequest
 
-from pyramid.threadlocal import get_current_request
-
 import transaction
 
 from zope import component
@@ -74,7 +72,7 @@ class AbstractStatementRecorder(object):
         for stmt in stmts:
             assert IStatement.providedBy(stmt), \
                    "Invalid statement %s" % type(stmt)
-            
+
             if stmt.timestamp is None:
                 stmt.timestamp = datetime.utcnow()
 
@@ -99,13 +97,12 @@ class LRSStatementRecorder(AbstractStatementRecorder):
         logger.info('Persisting %i statements to lrs', len(stmts))
         recorder(stmts)
 
-
     def record_statements(self, stmts):
         if self.client is None:
             logger.warning('No LRSClient Found. Dropping statement(s)')
             return
         super(LRSStatementRecorder, self).record_statements(stmts)
-   
+
 
 @interface.implementer(IStatementRecorder)
 class InMemoryStatementRecorder(AbstractStatementRecorder):
@@ -123,7 +120,7 @@ class BufferingStatementRecorder(InMemoryStatementRecorder):
 
     def __init__(self, flush_to_recorder):
         super(BufferingStatementRecorder, self).__init__()
-        flush_to_recorder.notify_statements_recorded = lambda x: None
+        flush_to_recorder.notify_statements_recorded = lambda unused_x: None
         self.flush_to_recorder = flush_to_recorder
 
     def flush(self):
@@ -141,7 +138,7 @@ class SingleRedisStatementRecorder(object):
         result = []
         for statement in to_nonstr_iterable(stmts):
             result.append(
-                put_generic_job(RECORDER_JOBS_QUEUE, 
+                put_generic_job(RECORDER_JOBS_QUEUE,
                                 process_statement
                                 (statement,))
             )
@@ -158,12 +155,14 @@ class XAPIStatementRecorderDataManager(OrderedNearEndObjectDataManager):
         return self.target
 
 
-@interface.implementer(IStatementRecorder)
 @component.adapter(IRequest)
-def statement_recorder_for_request(request=None):
+@interface.implementer(IStatementRecorder)
+def statement_recorder_for_request(unused_request=None):
     trans = transaction.get()
-
-    rdm = next((m for m in trans._resources if isinstance(m, XAPIStatementRecorderDataManager)), None)
+    # pylint: disable=protected-access
+    rdm = next(
+        (m for m in trans._resources if isinstance(m, XAPIStatementRecorderDataManager)), None
+    )
     if rdm is None:
         recorder = component.getUtility(IStatementRecorderFactory)()
         rdm = XAPIStatementRecorderDataManager(recorder)
@@ -178,4 +177,3 @@ def recorder_factory():
     A callable that creates a recorder
     """
     return BufferingStatementRecorder(LRSStatementRecorder())
-
