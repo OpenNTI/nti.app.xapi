@@ -23,7 +23,7 @@
 <p>No statements logged.</p>
 % endif
 
-<pre name="" id="myTextarea" class="json" ></pre>	
+<pre name="" class="json" ></pre>	
 
 <script type="text/javascript">
  $(document).ready(function() {
