@@ -8,11 +8,11 @@ from __future__ import division
 from __future__ import print_function
 from __future__ import absolute_import
 
-import json
-
 from pyramid_debugtoolbar.panels import DebugPanel
 
 from pyramid.threadlocal import get_current_request
+
+import simplejson as json
 
 from zope import component
 
@@ -24,6 +24,7 @@ from nti.externalization.externalization import to_external_object
 
 from nti.xapi.interfaces import IStatement
 
+
 @component.adapter(IStatement, IStatementRecordedEvent)
 def _on_statement_recorded(stmt, event):
     request = get_current_request()
@@ -34,6 +35,7 @@ def _on_statement_recorded(stmt, event):
 gsm = getGlobalSiteManager()
 gsm.registerHandler(_on_statement_recorded)
 del gsm
+
 
 class XAPIDebugPanel(DebugPanel):
     """
@@ -69,7 +71,7 @@ class XAPIDebugPanel(DebugPanel):
             'statements': stmts,
             'source': [json.dumps(to_external_object(x), sort_keys=True) for x in stmts]
         }
-        
+
 
 def includeme(config):
     config.add_debugtoolbar_panel(XAPIDebugPanel)
