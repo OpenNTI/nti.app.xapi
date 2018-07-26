@@ -26,9 +26,10 @@ from nti.xapi.interfaces import IStatement
 
 
 @component.adapter(IStatement, IStatementRecordedEvent)
-def _on_statement_recorded(stmt, event):
+def _on_statement_recorded(stmt, unused_event):
     request = get_current_request()
     if hasattr(request, '_nti_pdbt_xapi_statements'):
+        # pylint: disable=protected-access
         request._nti_pdbt_xapi_statements.append(stmt)
 
 
@@ -46,6 +47,7 @@ class XAPIDebugPanel(DebugPanel):
     template = 'nti.app.xapi:pdbt/templates/xapipanel.dbtmako'
 
     def __init__(self, request):
+        DebugPanel.__init__(self, request)
         self.statements = request._nti_pdbt_xapi_statements = []
 
     @property
@@ -65,7 +67,7 @@ class XAPIDebugPanel(DebugPanel):
         if self.statements:
             return "%d" % (len(self.statements))
 
-    def process_response(self, response):
+    def process_response(self, unused_response):
         stmts = sorted(self.statements, key=lambda stmt: stmt.timestamp)
         self.data = {
             'statements': stmts,
