@@ -53,6 +53,7 @@ setup(
     tests_require=TESTS_REQUIRE,
     install_requires=[
         'setuptools',
+        'nti.app.asynchronous',
         'nti.asynchronous',
         'nti.common',
         'nti.coremetadata',
